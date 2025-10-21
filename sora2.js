@@ -9,7 +9,7 @@
  */
 
 // ====== 配置区（替换为你的 webhook 或留空） ======
-const WEBHOOK_URL = "https://sandbox-ysp.epay123.net/receive"; // 若不需要 webhook，留空 ""
+const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需要 webhook，留空 ""
 // =====================================================
 
 (function () {
