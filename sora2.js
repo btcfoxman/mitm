@@ -39,7 +39,7 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
     }
 
     // 构造要发送的负载（只包含必要字段，避免泄露敏感 headers）
-    const payload = {
+    /* const payload = {
       captured_url: reqUrl,
       method: $request.method || 'GET',
       headers: (function (h) {
@@ -57,19 +57,19 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
         } catch (e) { return {}; }
       })($request.headers || {}),
       detected_at: new Date().toISOString()
-    };
+    }; */
 
     // 发送到 webhook（异步，不阻塞）
     (function sendToWebhook(webhook, bodyObj) {
       if (!webhook || typeof webhook !== 'string' || !webhook.startsWith('http')) return;
-      const body = JSON.stringify(bodyObj);
+      // const body = JSON.stringify(bodyObj);
 
       // Surge / Shadowrocket 风格
-      if (typeof $httpClient !== 'undefined' && $httpClient.post) {
+      if (typeof $httpClient !== 'undefined' && $httpClient.get) {
         try {
-          $httpClient.post({
+          $httpClient.get({
             url: webhook+"?v="+bodyObj.captured_url,
-            body: body,
+            /* body: body, */
             headers: { 'Content-Type': 'application/json' }
           }, function (err, resp, data) {
             // 忽略回调与错误
@@ -79,23 +79,23 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
       }
 
       // QuanX 风格
-      if (typeof $task !== 'undefined' && $task.fetch) {
+      else if (typeof $task !== 'undefined' && $task.fetch) {
         try {
           $task.fetch({
             url: webhook+"?v="+bodyObj.captured_url,
-            method: 'POST',
+            method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-            body: body
+            /* body: body */
           }).then(() => {/* ok */}).catch(()=>{/* ignore */});
           return;
         } catch (e) { /* fallthrough */ }
       }
 
       // 通用 fetch（少数环境）
-      if (typeof fetch === 'function') {
-        try { fetch(webhook+"?v="+bodyObj.captured_url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
+      else if (typeof fetch === 'function') {
+        try { fetch(webhook+"?v="+bodyObj.captured_url, { method: 'GET', headers: {'Content-Type':'application/json'}/*, body: body */ }); } catch (e) {}
       }
-    })(WEBHOOK_URL, payload);
+    })(WEBHOOK_URL, /* payload */{captured_url:reqUrl});
 
     // 立即透传原请求（不修改）
     $done($request);
