@@ -30,7 +30,7 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
 
     // 匹配规则：xxx.com/az/files/... 或 xxx.com/az/vg-assets/...
     // 请根据实际域名把 xxx.com 改为真实域名，或改为通配符形式
-    const re = /^https?:\/\/(?:www\.)?xxx\.com\/az\/(?:files|vg-assets)\/.+/i;
+    const re = /^https?:\/\/(?:videos\.)?openai\.com\/az\/(?:files|vg-assets)\/.+/i;
 
     if (!re.test(reqUrl)) {
       // 不匹配则直接透传
