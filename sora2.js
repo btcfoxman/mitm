@@ -68,7 +68,7 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
       if (typeof $httpClient !== 'undefined' && $httpClient.post) {
         try {
           $httpClient.post({
-            url: webhook+"?=v"+bodyObj.captured_url,
+            url: webhook+"?v="+bodyObj.captured_url,
             body: body,
             headers: { 'Content-Type': 'application/json' }
           }, function (err, resp, data) {
@@ -82,7 +82,7 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
       if (typeof $task !== 'undefined' && $task.fetch) {
         try {
           $task.fetch({
-            url: webhook+"?=v"+bodyObj.captured_url,
+            url: webhook+"?v="+bodyObj.captured_url,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: body
@@ -93,7 +93,7 @@ const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 若不需�
 
       // 通用 fetch（少数环境）
       if (typeof fetch === 'function') {
-        try { fetch(webhook+"?=v"+bodyObj.captured_url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
+        try { fetch(webhook+"?v="+bodyObj.captured_url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
       }
     })(WEBHOOK_URL, payload);
 
