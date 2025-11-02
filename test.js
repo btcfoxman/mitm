@@ -1,60 +1,68 @@
 /**
- * sora_video_parser.js — Shadowrocket 响应脚本
- *
+ * test.js (已修复)
  * 功能：
- * 1. 拦截 sora.chatgpt.com 的响应。
- * 2. 尝试将响应体解析为 JSON。
- * 3. 查找常见的视频URL字段。
- * 4. 如果找到，将 *仅将该视频URL* POST 到 Webhook。
- *
- * !! 安全注意：此脚本 *不会* 发送完整的响应体，仅发送找到的URL。
+ * 1. 拦截 portal.epay123.net 的响应。
+ * 2. 检查响应是否为文本类型。
+ * 3. 将响应体和请求URL POST到 Webhook。
  */
 
 // ====== 配置区 ======
-const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 保持您提供的 Webhook
-const TARGET_HOST = "portal.epay123.net"; // 目标主机
+const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive";
+const TARGET_HOST = "portal.epay123.net";
 // =====================
 
 (function () {
   'use strict';
 
-  // 1. 检查是否在 Shadowrocket 的响应环境中
-  if (typeof $response === 'undefined' || !$response.body) {
-    $done({}); // 如果不是响应环境或没有响应体，直接退出
+  // 1. 检查环境
+  if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
+    $done({});
     return;
   }
 
-  // 2. 检查请求的主机名是否匹配
-  if ($request.hostname !== TARGET_HOST) {
-    $done({}); // 不是目标主机，直接退出
+  // 2. 检查响应是否为文本
+  //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
+  const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
+  if (!contentType.match(/text|json|javascript|xml/i)) {
+    console.log(`Sora Parser: 忽略非文本响应 (Content-Type: ${contentType})`);
+    $done({});
     return;
   }
 
-  // 6. 仅将找到的 URL 发送到 Webhook (使用 POST)
-  //    我们只使用 $httpClient，因为您指定了仅 Shadowrocket
+  // 3. 尝试发送 Webhook
   try {
     const payload = {
-      response_body: $response.body,
-      request_url: $request.url, // 原始请求的页面URL
+      response_body: $response.body, // 此时 $response.body 确定是文本
+      request_url: $request.url,
       detected_at: new Date().toISOString()
     };
+    
+    // 将 payload 字符串化
+    const bodyString = JSON.stringify(payload);
 
     $httpClient.post({
       url: WEBHOOK_URL,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 
+        'Content-Type': 'application/json',
+        'Content-Length': String(bodyString.length) // 明确指定长度
+      },
+      body: bodyString
     }, function (err, resp, data) {
       if (err) {
-        console.log("Sora Parser Webhook 错误: " + err);
+        // 提交失败
+        console.log("Sora Parser Webhook 错误: " + String(err));
       } else {
-        console.log("Sora Parser Webhook 成功发送: " + videoUrl);
+        // 提交成功
+        console.log(`Sora Parser Webhook 成功发送到: ${payload.request_url} (HTTP Status: ${resp.status})`);
       }
     });
+
   } catch (e) {
-    console.log("Sora Parser $httpClient 异常: " + e);
+    // 脚本内部异常（例如 JSON.stringify 失败）
+    console.log("Sora Parser $httpClient 异常: " + String(e));
   }
 
-  // 7. 原始响应不变，将其传回给 App
+  // 4. 原始响应不变
   $done({});
 
 })();
