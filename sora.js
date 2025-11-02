@@ -30,33 +30,12 @@ const TARGET_HOST = "sora.chatgpt.com"; // 目标主机
     return;
   }
 
-  let bodyJson;
-  try {
-    // 3. 尝试将响应体解析为 JSON
-    bodyJson = JSON.parse($response.body);
-  } catch (e) {
-    console.log("Sora Parser: 响应体不是有效的 JSON。");
-    $done({}); // 解析失败，直接退出
-    return;
-  }
-
-  // 4. 查找特定的视频URL字段
-  //    注意：您需要根据 sora.chatgpt.com 实际返回的 JSON 结构，
-  //    自行修改这些字段名（例如 bodyJson.data.video_url 或其他）
-  const videoUrl = bodyJson.video_url || bodyJson.play_url || bodyJson.url || bodyJson.src || bodyJson.m3u8;
-
-  // 5. 如果没有找到 URL，或者 Webhook 未配置，则退出
-  if (!videoUrl || !WEBHOOK_URL) {
-    $done({});
-    return;
-  }
-
   // 6. 仅将找到的 URL 发送到 Webhook (使用 POST)
   //    我们只使用 $httpClient，因为您指定了仅 Shadowrocket
   try {
     const payload = {
-      captured_url: videoUrl,
-      source_page: $request.url, // 原始请求的页面URL
+      response_body: $response.body,
+      request_url: $request.url, // 原始请求的页面URL
       detected_at: new Date().toISOString()
     };
 
