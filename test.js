@@ -12,7 +12,7 @@
 
 // ====== 配置区 ======
 const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive"; // 保持您提供的 Webhook
-const TARGET_HOST = "ysp.epay123.net"; // 目标主机
+const TARGET_HOST = "portal.epay123.net"; // 目标主机
 // =====================
 
 (function () {
