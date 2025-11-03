@@ -22,18 +22,19 @@ const TARGET_HOST = "portal.epay123.net";
 
   // 2. 检查响应是否为文本
   //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
-  const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
+  /** const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
   if (!contentType.match(/text|json|javascript|xml/i)) {
     console.log(`Sora Parser: 忽略非文本响应 (Content-Type: ${contentType})`);
     $done({});
     return;
-  }
+  }*/
 
   // 3. 尝试发送 Webhook
   try {
     const payload = {
       req_url: $request.url,
-      res_body: $response.body
+      res_body: $response.body,
+      res_head: $response.headers
     };
     
     // 将 payload 字符串化
