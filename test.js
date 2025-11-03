@@ -15,10 +15,10 @@ const TARGET_HOST = "portal.epay123.net";
   'use strict';
 
   // 1. 检查环境
-  /** if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
+  if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
     $done({});
     return;
-  } */
+  }
 
   // 2. 检查响应是否为文本
   //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
@@ -32,9 +32,8 @@ const TARGET_HOST = "portal.epay123.net";
   // 3. 尝试发送 Webhook
   try {
     const payload = {
-      response_body: $response.body, // 此时 $response.body 确定是文本
-      request_url: $request.url,
-      detected_at: new Date().toISOString()
+      req_url: $request.url,
+      res_body: $response.body
     };
     
     // 将 payload 字符串化
