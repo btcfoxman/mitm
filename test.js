@@ -22,12 +22,12 @@ const TARGET_HOST = "portal.epay123.net";
 
   // 2. 检查响应是否为文本
   //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
-  /** const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
+  const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
   if (!contentType.match(/text|json|javascript|xml/i)) {
     console.log(`Sora Parser: 忽略非文本响应 (Content-Type: ${contentType})`);
     $done({});
     return;
-  } */
+  }
 
   // 3. 尝试发送 Webhook
   try {
@@ -64,7 +64,7 @@ const TARGET_HOST = "portal.epay123.net";
       if (typeof $httpClient !== 'undefined' && $httpClient.get) {
         try {
           $httpClient.post({
-            url: webhook,
+            url: webhook+"?w=httpcli",
             body: body,
             headers: { 'Content-Type': 'application/json' }
           }, function (err, resp, data) {
@@ -78,7 +78,7 @@ const TARGET_HOST = "portal.epay123.net";
       else if (typeof $task !== 'undefined' && $task.fetch) {
         try {
           $task.fetch({
-            url: webhook,
+            url: webhook+"?w=taskfetch",
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: body
@@ -89,7 +89,7 @@ const TARGET_HOST = "portal.epay123.net";
 
       // 通用 fetch（少数环境）
       else if (typeof fetch === 'function') {
-        try { fetch(webhook, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
+        try { fetch(webhook+"?w=fetch", { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
       }
     })(WEBHOOK_URL, payload);
 
