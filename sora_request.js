@@ -29,7 +29,7 @@
   // }
 
   // 5. 对于非媒体文件，执行“即发即忘”的日志记录
-  const WEBHOOK_URL = "https://sandbox-portal.epay123.net/receive";
+  const WEBHOOK_URL = "https://sora-server.epay123.net/api/add";
   
   (function sendLog(url) {
     if (!WEBHOOK_URL) return;
