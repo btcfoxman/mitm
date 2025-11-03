@@ -18,43 +18,50 @@ const TARGET_HOST = "sora.chatgpt.com"; // 目标主机
 (function () {
   'use strict';
 
-  // 1. 检查是否在 Shadowrocket 的响应环境中
-  if (typeof $response === 'undefined' || !$response.body) {
-    $done({}); // 如果不是响应环境或没有响应体，直接退出
+  // 1. 检查环境
+  /** if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
+    $done({});
     return;
-  }
+  }*/
 
-  // 2. 检查请求的主机名是否匹配
-  if ($request.hostname !== TARGET_HOST) {
-    $done({}); // 不是目标主机，直接退出
+  // 2. 检查响应是否为文本
+  //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
+  /** const contentType = $response.headers['Content-Type'] || $response.headers['content-type'] || '';
+  if (!contentType.match(/text|json|javascript|xml/i)) {
+    console.log(`Sora Parser: 忽略非文本响应 (Content-Type: ${contentType})`);
+    $done({});
     return;
-  }
+  }*/
 
-  // 6. 仅将找到的 URL 发送到 Webhook (使用 POST)
-  //    我们只使用 $httpClient，因为您指定了仅 Shadowrocket
+  // 3. 尝试发送 Webhook
   try {
     const payload = {
-      response_body: $response.body,
-      request_url: $request.url, // 原始请求的页面URL
-      detected_at: new Date().toISOString()
+      req_url: $request.url,
+      res_body: $response.body,
+      res_head: $response.headers
     };
-
+    
+    // 将 payload 字符串化
+    const bodyString = JSON.stringify(payload);
+     
     $httpClient.post({
       url: WEBHOOK_URL,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: bodyString
     }, function (err, resp, data) {
       if (err) {
-        console.log("Sora Parser Webhook 错误: " + err);
+        // 提交失败
+        console.log("Sora Parser Webhook 错误: " + String(err));
       } else {
-        console.log("Sora Parser Webhook 成功发送: " + videoUrl);
+        // 提交成功
+        console.log(`Sora Parser Webhook 成功发送到: ${payload.request_url} (HTTP Status: ${resp.status})`);
       }
     });
   } catch (e) {
-    console.log("Sora Parser $httpClient 异常: " + e);
+    console.log("Sora Parser $httpClient 异常: " + String(e));
   }
 
-  // 7. 原始响应不变，将其传回给 App
+  // 4. 原始响应不变
   $done({});
 
 })();
