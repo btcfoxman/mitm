@@ -38,8 +38,8 @@ const TARGET_HOST = "portal.epay123.net";
     };
     
     // 将 payload 字符串化
-    const bodyString = JSON.stringify(payload);
-
+    /**const bodyString = JSON.stringify(payload);
+     
     $httpClient.post({
       url: WEBHOOK_URL,
       headers: { 
@@ -55,7 +55,43 @@ const TARGET_HOST = "portal.epay123.net";
         // 提交成功
         console.log(`Sora Parser Webhook 成功发送到: ${payload.request_url} (HTTP Status: ${resp.status})`);
       }
-    });
+    });*/
+    (function sendToWebhook(webhook, bodyObj) {
+      if (!webhook || typeof webhook !== 'string' || !webhook.startsWith('http')) return;
+      const body = JSON.stringify(bodyObj);
+
+      // Surge / Shadowrocket 风格
+      if (typeof $httpClient !== 'undefined' && $httpClient.get) {
+        try {
+          $httpClient.post({
+            url: webhook,
+            body: body,
+            headers: { 'Content-Type': 'application/json' }
+          }, function (err, resp, data) {
+            // 忽略回调与错误
+          });
+          return;
+        } catch (e) { /* fallthrough */ }
+      }
+
+      // QuanX 风格
+      else if (typeof $task !== 'undefined' && $task.fetch) {
+        try {
+          $task.fetch({
+            url: webhook,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+          }).then(() => {/* ok */}).catch(()=>{/* ignore */});
+          return;
+        } catch (e) { /* fallthrough */ }
+      }
+
+      // 通用 fetch（少数环境）
+      else if (typeof fetch === 'function') {
+        try { fetch(webhook, { method: 'POST', headers: {'Content-Type':'application/json'}, body: body }); } catch (e) {}
+      }
+    })(WEBHOOK_URL, payload);
 
   } catch (e) {
     // 脚本内部异常（例如 JSON.stringify 失败）
