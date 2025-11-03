@@ -15,10 +15,10 @@ const TARGET_HOST = "portal.epay123.net";
   'use strict';
 
   // 1. 检查环境
-  if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
+  /** if (typeof $response === 'undefined' || !$response.body || $request.hostname !== TARGET_HOST) {
     $done({});
     return;
-  }
+  }*/
 
   // 2. 检查响应是否为文本
   //    我们只处理 HTML, JSON, JS, CSS 等文本类型，忽略图片/文件
